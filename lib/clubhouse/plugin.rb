@@ -94,7 +94,7 @@ module Danger
         find_story_ids_in_title,
         find_story_ids_in_description,
         find_story_ids_in_comments
-      ].flatten
+      ].flatten.uniq
     end
 
     def story_link(id)
