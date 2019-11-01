@@ -31,6 +31,13 @@ module Danger
     # @return   [String]
     attr_accessor :organization
 
+    # Are there any clubhouse stories to link to at all?
+    #
+    # @return [Boolean]
+    def found_story_ids?
+      find_all_story_ids.empty?
+    end
+
     # Check the branch, commit messages, comments and description to find clubhouse stories to link to.
     #
     # @return [void]
