@@ -15,7 +15,7 @@
 # @see  Teng Siong Ong/danger-clubhouse
 # @tags monday, weekends, time, rattata
 #
-module Danger  
+module Danger
   # This plugin will detect stories from clubhouse and link to them.
   #
   # @example Customize the clubhouse organization and check for stories to link to them.
@@ -34,24 +34,24 @@ module Danger
     # Check the branch, commit messages, comments and description to find clubhouse stories to link to.
     #
     # @return [void]
-    def link_stories!      
+    def link_stories!
       story_ids = find_all_story_ids
       return if story_ids.empty?
 
       message = "### Clubhouse Stories\n\n"
       story_ids.each do |id|
         message << "* [#{story_link(id)}](#{story_link(id)}) \n"
-      end      
+      end
       markdown message
     end
-    
+
     # Find clubhouse story ids in the text.
     #
     # @return [Array<String>]
     def find_story_ids(text)
       text.scan(/ch(\d+)/).flatten
     end
-    
+
     # Find clubhouse story id in the text.
     #
     # @return [String, nil]
@@ -68,7 +68,11 @@ module Danger
     def find_story_ids_in_commits
       git.commits.map { |commit| find_story_ids(commit.message) }.flatten
     end
-    
+
+    def find_story_ids_in_title
+      find_story_ids(github.pr_title) if defined? @dangerfile.github
+    end
+
     def find_story_ids_in_description
       find_story_ids(github.pr_body) if defined? @dangerfile.github
     end
@@ -82,11 +86,17 @@ module Danger
           .flatten
       end
     end
-    
+
     def find_all_story_ids
-      find_story_ids_in_branch + find_story_ids_in_commits + find_story_ids_in_description + find_story_ids_in_comments
+      [
+        find_story_ids_in_branch,
+        find_story_ids_in_commits,
+        find_story_ids_in_title,
+        find_story_ids_in_description,
+        find_story_ids_in_comments
+      ].flatten
     end
-      
+
     def story_link(id)
       "https://app.clubhouse.io/#{organization}/story/#{id}"
     end
